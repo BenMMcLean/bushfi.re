@@ -22,6 +22,7 @@
 	padding: 10px 16px;
 	position: absolute;
 	display: none;
+	word-break: break-all;
 }
 
 #citation-hover:after {
