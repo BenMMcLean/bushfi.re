@@ -1,8 +1,199 @@
-var $jscomp=$jscomp||{};$jscomp.scope={};$jscomp.arrayIteratorImpl=function(b){var a=0;return function(){return a<b.length?{done:!1,value:b[a++]}:{done:!0}}};$jscomp.arrayIterator=function(b){return{next:$jscomp.arrayIteratorImpl(b)}};$jscomp.makeIterator=function(b){var a="undefined"!=typeof Symbol&&Symbol.iterator&&b[Symbol.iterator];return a?a.call(b):$jscomp.arrayIterator(b)};function Citation(b,a){this.id=b;this.rawCitation=a;this.ref=null;this.citationText=function(b){return a}}
-function FormattedCitation(b,a){this.id=b;this.ref=ref;this.citationText=function(b){return b.format(a)}}function CitationConfiguration(b,a,e,c,d,f){this.completeCitationContainer=void 0===a?"#complete-citation-container":a;this.enableCompleteCitationContainer=void 0===b?!0:b;this.completeCitationContainerTitle=void 0===e?"<h2>References</h2>":e;this.enableHoverContainer=void 0===c?!0:c;this.hoverArrowOffset=void 0===d?30:d}
-(function(b){function a(a,c){this.citations=a;this.configuration=c;this.usedCitations=[];this.execute=function(b){this.createHover();this.processCitations(b);this.setupCompleteCitationContainer()};this.processCitations=function(a){var d=[],c={},e=0,g=this;a.each(function(){b(this).find("[data-inline-citation]").each(function(){var a=new Citation(null,b(this).attr("data-inline-citation"));e++;a.ref=e;d.push(a);g.setupCitation(this,a)});b(this).find("[data-linked-citation]").each(function(){var a=g.findCitation(b(this).attr("data-linked-citation"));
-null!=a&&(null==a.ref&&(e++,a.ref=e),a.id in c||(d.push(a),c[a.id]=0),g.setupCitation(this,a))});g.usedCitations=d})};this.setupCitation=function(a,e){var d=this;var f=c.enableCompleteCitationContainer?b("<a href='#ref"+e.ref+"' class='citation-mark'>["+e.ref+"]</a>").appendTo(a):a;c.enableHoverContainer&&b(f).hover(function(){var a=b("#citation-hover");a.removeClass();a.addClass("bottom default");a.html(e.citationText());a.stop().fadeIn(d.configuration.hoverContainerFadeLength);var f=b(this).offset(),
-l=b(this).height(),h=b(this).width();a.css({left:f.left-h/2-c.hoverArrowOffset,top:f.top-a.height()-33});var k=a[0].getBoundingClientRect();0>k.top&&(a.removeClass("bottom"),a.addClass("top"),a.css({top:f.top+l+10}));0>k.left?(a.removeClass("default"),a.addClass("left"),a.css({left:f.left-h/2})):k.right>(window.innerWidth||document.documentElement.clientWidth)&&(a.removeClass("default"),a.addClass("right"),a.css({left:f.left-1.5*h-a.width()}))},function(){b("#citation-hover").stop().fadeOut(d.configuration.hoverContainerFadeLength)})};
-this.findCitation=function(b){for(var d=0;d<a.length;d++)if(a[d].id==b)return a[d]};this.setupCompleteCitationContainer=function(){if(this.configuration.enableCompleteCitationContainer&&!(1>b(this.configuration.completeCitationContainer).length)){var a=b(this.configuration.completeCitationContainer);a.append(this.configuration.completeCitationContainerTitle);a=b("<ol id='complete-citation-container-list'></ol>").appendTo(a);console.log(this.usedCitations);for(var e=$jscomp.makeIterator(this.usedCitations),
-c=e.next();!c.done;c=e.next())citation=c.value,b(a).append("<li id='ref"+citation.ref+"'>"+citation.citationText()+"</li>")}};this.createHover=function(){if(!b("#citation-hover").length){b("body").append("<div id='citation-hover' class='top left'></div>");var a=this;b("#citation-hover").hover(function(){b(this).stop().fadeIn(a.configuration.hoverContainerFadeLength)},function(){b(this).stop().fadeOut(a.configuration.hoverContainerFadeLength)})}}}b.fn.cite=function(b,c,d){b=void 0===b?[]:b;c=void 0===
-c?new CitationConfiguration:c;b=new a(b,c);b.execute(this);null!=d&&d(b.usedCitations);return this}})(jQuery);
+function Citation(id, rawCitation) {
+	this.id = id;
+	this.rawCitation = rawCitation;
+	this.ref = null;
+	
+	this.citationText = function(formatter) { return rawCitation; }
+}
+
+function FormattedCitation(id, params) {
+	this.id = id;
+	this.ref = ref;
+	
+	this.citationText = function(formatter) { return formatter.format(params); }
+}
+
+function CitationConfiguration(
+	enableCompleteCitationContainer = true,
+	completeCitationContainer = "#complete-citation-container",
+	completeCitationContainerTitle = "<h2>References</h2>",
+	enableHoverContainer = true,
+	hoverArrowOffset = 30,
+	hoverContainerFadeLength = 50) {
+		
+	this.completeCitationContainer = completeCitationContainer;
+	this.enableCompleteCitationContainer = enableCompleteCitationContainer;
+	this.completeCitationContainerTitle = completeCitationContainerTitle;
+	this.enableHoverContainer = enableHoverContainer;
+	this.hoverArrowOffset = hoverArrowOffset;
+
+}
+
+(function($) {
+
+	var INLINE_CITATION_NAME = "data-inline-citation";
+	var LINKED_CITATION_NAME = "data-linked-citation";
+	
+	var HOVER_CONTAINER_NAME = "citation-hover";
+	
+	$.fn.cite = function(citations = [], configuration = new CitationConfiguration(), callback) {
+		var ce = new _CiteExecute(citations, configuration);
+		ce.execute(this);
+		
+		if (callback != null) {
+			callback(ce.usedCitations);
+		}
+		
+		return this;
+	}
+	
+	function _CiteExecute(citations, configuration) {
+		this.citations = citations;
+		this.configuration = configuration;
+		this.usedCitations = []
+		
+		this.execute = function(el) {
+			this.createHover();
+			this.processCitations(el);
+			this.setupCompleteCitationContainer();
+		}
+		
+		this.processCitations = function (el) {
+			var usedCitations = [];
+			var usedCitationMap = {};
+			var citationCount = 0;
+			
+			var _this = this;
+			
+			el.each(function () {
+				$(this).find("["+INLINE_CITATION_NAME+"]").each(function() {
+					var citation = new Citation(null, $(this).attr(INLINE_CITATION_NAME));
+					
+					citationCount++;
+					citation.ref = citationCount;
+					
+					usedCitations.push(citation);
+					
+					_this.setupCitation(this, citation);
+				});
+				
+				$(this).find("["+LINKED_CITATION_NAME+"]").each(function() {
+					var citation = _this.findCitation($(this).attr(LINKED_CITATION_NAME));
+					
+					if (citation == null) return;
+					
+					if (citation.ref == null) {
+						citationCount++;
+						citation.ref = citationCount;
+					}
+					
+					if (!(citation.id in usedCitationMap)) {
+						usedCitations.push(citation);
+						usedCitationMap[citation.id] = 0;
+					}
+					
+					_this.setupCitation(this, citation);
+				});
+				
+				_this.usedCitations = usedCitations;
+			});
+		}
+		
+		this.setupCitation = function(el, citation) {
+			var _this = this;
+			var hoverable;
+			if (configuration.enableCompleteCitationContainer) {
+				hoverable = $("<a href='#ref"+ citation.ref +"' class='citation-mark'>[" + citation.ref + "]</a>").appendTo(el); 
+			} else {
+				hoverable = el;
+			}
+			
+			if (configuration.enableHoverContainer) {
+				$(hoverable).hover(function() {
+					var me = $("#" + HOVER_CONTAINER_NAME);
+					
+					me.removeClass();
+					me.addClass("bottom default");
+					
+					me.html(citation.citationText());
+					me.stop().fadeIn(_this.configuration.hoverContainerFadeLength);
+					
+					var hoverableOffset = $(this).offset();
+					var hoverableHeight = $(this).height();
+					var hoverableWidth = $(this).width();
+					
+					me.css({
+						left: hoverableOffset.left - (hoverableWidth / 2) - configuration.hoverArrowOffset,
+						top: hoverableOffset.top - me.height() - 33
+					});
+					
+					var bounding = me[0].getBoundingClientRect();
+					
+					if (bounding.top < 0) {
+						me.removeClass("bottom");
+						me.addClass("top");
+						me.css({
+							top: hoverableOffset.top + hoverableHeight + 10
+						});
+					}
+					
+					if (bounding.left < 0) {
+						me.removeClass("default");
+						me.addClass("left");
+						me.css({
+							left: hoverableOffset.left - (hoverableWidth/2)
+						});
+					} else if (bounding.right > (window.innerWidth || document.documentElement.clientWidth)) {
+						me.removeClass("default");
+						me.addClass("right");
+						me.css({
+							left: hoverableOffset.left - (hoverableWidth*1.5) - me.width()
+						});
+					}
+				}, function() {
+					$("#" + HOVER_CONTAINER_NAME).stop().fadeOut(_this.configuration.hoverContainerFadeLength);
+				});
+			}
+		}
+		
+		this.findCitation = function(id) {
+			for (var i = 0; i < citations.length; i++) {
+				if (citations[i].id == id) return citations[i];
+			}
+		}
+		
+		this.setupCompleteCitationContainer = function() {
+			if (!this.configuration.enableCompleteCitationContainer || $(this.configuration.completeCitationContainer).length < 1) {
+				return;
+			}
+			
+			var me = $(this.configuration.completeCitationContainer);
+			
+			me.append(this.configuration.completeCitationContainerTitle);
+			var list = $("<ol id='complete-citation-container-list'></ol>").appendTo(me);
+			
+			console.log(this.usedCitations);
+			
+			for(citation of this.usedCitations) {
+				$(list).append("<li id='ref" + citation.ref + "'>" + citation.citationText() + "</li>");
+			}
+		}
+		
+		this.createHover = function() {
+			if ($("#" + HOVER_CONTAINER_NAME).length) {
+				return;
+			}
+			
+			$("body").append("<div id='citation-hover' class='top left'></div>");
+			
+			var _this = this;
+			
+			$("#citation-hover").hover(function() {
+				$(this).stop().fadeIn(_this.configuration.hoverContainerFadeLength);
+			}, function() {
+				$(this).stop().fadeOut(_this.configuration.hoverContainerFadeLength);
+			});
+		}
+	}
+	
+}( jQuery ));
