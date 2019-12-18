@@ -2,6 +2,26 @@
 <html>
 	<head>
 		<title>Bushfire</title>
+		
+		<link rel="stylesheet" type="text/css" href="wikicite.css">
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+		<script src="wikicite.js"></script>
+		
+		<script>
+			
+			$(document).ready(function(){
+				var citations = [
+					new Citation("psn2019", 'Factcheck: Is there really a green conspiracy to stop bushfire hazard reduction? - The Guardian 12/11/19. (2019, November 13). Retrieved December 18, 2019, from <a href="https://psa.asn.au/factcheck-is-there-really-a-green-conspiracy-to-stop-bushfire-hazard-reduction-the-guardian-12-11-19/">https://psa.asn.au/factcheck-is-there-really-a-green-conspiracy-to-stop-bushfire-hazard-reduction-the-guardian-12-11-19/</a>.'),
+					new Citation("smh2019", 'Mullins, G. (2019, November 10). This is not normal: what\'s different about the NSW mega fires. Retrieved from <a href="https://www.smh.com.au/national/this-is-not-normal-what-s-different-about-the-nsw-mega-fires-20191110-p5395e.html">https://www.smh.com.au/national/this-is-not-normal-what-s-different-about-the-nsw-mega-fires-20191110-p5395e.html</a>.'),
+					new Citation("nasaG", 'Data.GISS: GISS Surface Temperature Analysis (GISTEMP v4). (n.d.). Retrieved December 18, 2019, from <a href="http://data.giss.nasa.gov/gistemp/">http://data.giss.nasa.gov/gistemp/</a>.'),
+					new Citation("bomG", 'Bureau of Meteorology. (n.d.). State of the Climate 2018. Retrieved from <a href="http://www.bom.gov.au/state-of-the-climate/australias-changing-climate.shtml">http://www.bom.gov.au/state-of-the-climate/australias-changing-climate.shtml</a>.')
+				];
+			
+				$("body").cite(citations);
+			});
+			
+		</script>
+		
 		<style>
 			body {
 				background-color:#FFFFFF;
@@ -52,14 +72,12 @@
 			<h2>Why were there less burn offs this year then?</h2>
 			<p>
 				As Greg Mullins, Former Fire and Rescue NSW Commissioner, said in an 
-				<a href="https://www.smh.com.au/national/this-is-not-normal-what-s-different-about-the-nsw-mega-fires-20191110-p5395e.html">
-				article for the Sydney Morning Herald</a>, "Unprecedented dryness; reductions in long-term rainfall; low humidity; high temperatures; 
+				article for the Sydney Morning Herald<span data-linked-citation="smh2019"></span>, "Unprecedented dryness; reductions in long-term rainfall; low humidity; high temperatures; 
 				wind velocities; fire danger indices; fire spread and ferocity; instances of pyro-convective fires (fire storms - making their own 
 				weather); early starts and late finishes to bushfire seasons. An established long-term trend driven by a warming, drying climate."
 			</p>
 			<p>	
-				Additionally the NSW RFS "fire-trained" staff was cut by 35% in 2018, reducing their capacity to administer burn offs safely 
-				<a href="https://psa.asn.au/factcheck-is-there-really-a-green-conspiracy-to-stop-bushfire-hazard-reduction-the-guardian-12-11-19/">(Source)</a>.
+				Additionally the NSW RFS "fire-trained" staff was cut by 35% in 2018, reducing their capacity to administer burn offs safely.<span data-linked-citation="psn2019"></span>
 			</p>
 			
 			<h2>There were worse bushfires in 1983 and 1967!</h2>
@@ -74,7 +92,7 @@
 				This year very probably is just an outlier, however the number of "outlier" years will increase as climate change worsens.
 			</p>
 			
-			<h2>Just look at the graphs, you're wrong!</h2>
+			<h2>Just look at the graphs, you're wrong!<span data-linked-citation="nasaG"></span><span data-linked-citation="bomG"></span></h2>
 			<a href="http://data.giss.nasa.gov/gistemp/">
 				<img src="average-temp.png" class="content-image"/>
 			</a>
@@ -95,6 +113,9 @@
 				annually, and if it wants more, it has to buy it from another company. This has been implemented with much success internationally,
 				 and would have little effect on the GDP, prices or taxes while reducing emissions.
 			</p>
+			
+			<div id="complete-citation-container">
+			</div>
 			
 			<p style="text-align:center">All text content on this page is licenced under <a href="https://creativecommons.org/licenses/by-sa/3.0/au/">CC BY-SA 3.0 (AU)</a></p>
 		</div>
